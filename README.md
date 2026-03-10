@@ -45,6 +45,9 @@ cpr C:\project\ D:\backup\project\
 
 # Copy with exclude patterns and skip confirmation
 cpr C:\project\ D:\backup\project\ -e node_modules,.git,*.log -y
+
+# Preview what would be copied (no files are written)
+cpr C:\project\ D:\backup\project\ -e node_modules,.git,*.log -n
 ```
 
 ### Options
@@ -53,6 +56,7 @@ cpr C:\project\ D:\backup\project\ -e node_modules,.git,*.log -y
 |---|---|
 | `-e, --exclude <PATTERNS>` | Comma-separated patterns to exclude |
 | `-y, --yes` | Skip confirmation prompt for directory copies |
+| `-n, --dry-run` | Preview what would be copied without copying |
 
 ### Exclude patterns
 

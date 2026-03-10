@@ -10,7 +10,7 @@ use std::{
 #[command(
     name = "cpr",
     about = "A file and directory copy tool with --exclude support",
-    after_help = "Examples:\n  cpr report.pdf D:\\backup\\\n  cpr C:\\project\\ D:\\backup\\project\\ -e node_modules,.git,*.log -y"
+    after_help = "Examples:\n  cpr report.pdf D:\\backup\\\n  cpr C:\\project\\ D:\\backup\\project\\ -e node_modules,.git,*.log -y\n  cpr C:\\project\\ D:\\backup\\project\\ -e node_modules -n"
 )]
 struct Args {
     /// Source file or directory
