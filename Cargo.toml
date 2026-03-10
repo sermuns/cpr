@@ -1,6 +1,6 @@
 [package]
 name = "cpr"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2024"
 description = "A better file copy tool for the command line"
 license = "MIT"
@@ -9,3 +9,4 @@ repository = "https://github.com/canmanalp/cpr"
 
 [dependencies]
 clap = { version = "4.5.60", features = ["derive"] }
+colored = "3.1.1"
