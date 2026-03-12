@@ -1,9 +1,12 @@
 use clap::Parser;
 use colored::*;
+use rayon::prelude::*;
 use std::{
     fs::{self, create_dir_all},
     io,
-    path::Path,
+    path::{Path, PathBuf},
+    sync::Mutex,
+    sync::atomic::{AtomicU64, Ordering},
 };
 
 #[derive(Parser)]
@@ -135,6 +138,9 @@ fn copy_dir(
         files_to_be_excluded: Vec::new(),
         errors: Vec::new(),
     };
+
+    // Phase 1: Walk — collect files and dirs (sequential)
+    let mut files_to_copy: Vec<(PathBuf, PathBuf)> = Vec::new(); // (source, dest)
     let mut stack = vec![source.to_path_buf()];
 
     while let Some(current_path) = stack.pop() {
@@ -166,17 +172,29 @@ fn copy_dir(
                     .files_to_be_copied
                     .push(relative.to_string_lossy().to_string());
             } else {
-                match std::fs::copy(entry.path(), &new_dest) {
-                    Ok(bytes) => {
-                        result.bytes_copied += bytes;
-                        result.files_copied += 1;
-                    }
-                    Err(e) => result
-                        .errors
-                        .push(format!("{}: {}", entry.path().display(), e)),
-                }
+                files_to_copy.push((entry_path, new_dest));
             }
         }
+    }
+
+    // Phase 2: Copy — parallel file copies
+    if !dry_run {
+        let bytes_copied = AtomicU64::new(0);
+        let files_copied = AtomicU64::new(0);
+        let errors: Mutex<Vec<String>> = Mutex::new(Vec::new());
+        files_to_copy
+            .par_iter()
+            .for_each(|(src, dest)| match std::fs::copy(src, dest) {
+                Ok(bytes) => {
+                    bytes_copied.fetch_add(bytes, Ordering::Relaxed);
+                    files_copied.fetch_add(1, Ordering::Relaxed);
+                }
+
+                Err(e) => errors.lock().unwrap().push(e.to_string()),
+            });
+        result.bytes_copied = bytes_copied.load(Ordering::Relaxed);
+        result.files_copied = files_copied.load(Ordering::Relaxed);
+        result.errors = errors.into_inner().unwrap();
     }
     Ok(result)
 }
