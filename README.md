@@ -1,6 +1,10 @@
 # cpr
 
-A file and directory copy tool with `--exclude` support. Built because PowerShell's `Copy-Item` doesn't have one.
+A file and directory copy tool with `--exclude` support and parallel copying. Built because PowerShell's `Copy-Item` doesn't have one.
+
+- **Simple exclude patterns** — `-e node_modules,.git,*.log` instead of robocopy's `/XD node_modules /XF *.log`
+- **Parallel by default** — copies files concurrently using all available cores
+- **Minimal overhead** — no ACLs, no retries, no attribute preservation, just copies bytes
 
 ## Installation
 
